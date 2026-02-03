@@ -1,0 +1,62 @@
+stages:
+  data_ingestion:
+    cmd: python -c "from textSummarizer.pipeline.stage_01_data_ingestion import DataIngestionTrainingPipeline; DataIngestionTrainingPipeline().main()"
+    deps:
+      - src/textSummarizer/pipeline/stage_01_data_ingestion.py
+      - src/textSummarizer/conponents/data_ingestion.py
+      - config/config.yaml
+    outs:
+      - artifacts/data_ingestion/samsum_dataset:
+          cache: true
+      - artifacts/data_ingestion/data.zip:
+          cache: true
+
+  data_validation:
+    cmd: python -c "from textSummarizer.pipeline.stage_02_data_validation import DataValidationTrainingPipeline; DataValidationTrainingPipeline().main()"
+    deps:
+      - src/textSummarizer/pipeline/stage_02_data_validation.py
+      - src/textSummarizer/conponents/data_validation.py
+      - artifacts/data_ingestion/samsum_dataset
+      - config/config.yaml
+    outs:
+      - artifacts/data_validation/status.txt:
+          cache: false
+
+  data_transformation:
+    cmd: python -c "from textSummarizer.pipeline.stage_03_data_transformation import DataTransformationTrainingPipeline; DataTransformationTrainingPipeline().main()"
+    deps:
+      - src/textSummarizer/pipeline/stage_03_data_transformation.py
+      - src/textSummarizer/conponents/data_transformation.py
+      - artifacts/data_ingestion/samsum_dataset
+      - config/config.yaml
+    outs:
+      - artifacts/data_transformation/samsum_dataset:
+          cache: true
+
+  model_trainer:
+    cmd: python -c "from textSummarizer.pipeline.stage_04_model_trainer import ModelTrainerTrainingPipeline; ModelTrainerTrainingPipeline().main()"
+    deps:
+      - src/textSummarizer/pipeline/stage_04_model_trainer.py
+      - src/textSummarizer/conponents/model_trainer.py
+      - artifacts/data_transformation/samsum_dataset
+      - config/config.yaml
+    params:
+      - TrainingArguments
+    outs:
+      - artifacts/model_trainer/pegasus-samsum-model:
+          cache: true
+      - artifacts/model_trainer/tokenizer:
+          cache: true
+
+  model_evaluation:
+    cmd: python -c "from textSummarizer.pipeline.stage_05_model_evaluation import ModelEvaluationTrainingPipeline; ModelEvaluationTrainingPipeline().main()"
+    deps:
+      - src/textSummarizer/pipeline/stage_05_model_evaluation.py
+      - src/textSummarizer/conponents/model_evaluation.py
+      - artifacts/data_transformation/samsum_dataset
+      - artifacts/model_trainer/pegasus-samsum-model
+      - artifacts/model_trainer/tokenizer
+      - config/config.yaml
+    metrics:
+      - artifacts/model_evaluation/metrics.csv:
+          cache: false

@@ -1,0 +1,16 @@
+# Add patterns of files dvc should ignore, which could improve
+# the performance. Learn more at
+# https://dvc.org/doc/user-guide/dvcignore
+/Dockerfile
+/Makefile
+/__pycache__
+.git
+.hg
+.gitignore
+.dvcignore
+*.egg-info
+/venv
+/env
+.vscode
+.idea
+*.pyc

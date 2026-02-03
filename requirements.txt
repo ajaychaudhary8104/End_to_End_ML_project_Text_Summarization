@@ -3,6 +3,7 @@ transformers[sentencepiece]
 datasets
 sacrebleu 
 rouge_score 
+evaluate
 py7zr
 pandas
 nltk
@@ -18,4 +19,6 @@ ensure
 fastapi
 uvicorn
 Jinja2
+dvc
+dvc[gs]
 -e .

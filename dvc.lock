@@ -1,0 +1,163 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python -c "from textSummarizer.pipeline.stage_01_data_ingestion import 
+      DataIngestionTrainingPipeline; DataIngestionTrainingPipeline().main()"
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: e5b87b3a5d55631a53aa80013f20356c
+      size: 1111
+    - path: src/textSummarizer/conponents/data_ingestion.py
+      hash: md5
+      md5: 5daee1f62320ac500e77d419d1296447
+      size: 1411
+    - path: src/textSummarizer/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: dd4e438db9ca465c507241ee10620712
+      size: 545
+    outs:
+    - path: artifacts/data_ingestion/data.zip
+      hash: md5
+      md5: 8e8de8d8666735de004076151c68cd8d
+      size: 7903594
+    - path: artifacts/data_ingestion/samsum_dataset
+      hash: md5
+      md5: 6955b4ac7cb77d44b1510853b6e4f753.dir
+      size: 10542802
+      nfiles: 10
+  data_validation:
+    cmd: python -c "from textSummarizer.pipeline.stage_02_data_validation import
+      DataValidationTrainingPipeline; DataValidationTrainingPipeline().main()"
+    deps:
+    - path: artifacts/data_ingestion/samsum_dataset
+      hash: md5
+      md5: 6955b4ac7cb77d44b1510853b6e4f753.dir
+      size: 10542802
+      nfiles: 10
+    - path: config/config.yaml
+      hash: md5
+      md5: e5b87b3a5d55631a53aa80013f20356c
+      size: 1111
+    - path: src/textSummarizer/conponents/data_validation.py
+      hash: md5
+      md5: 026882493c5336e87b1e8785635c7d9f
+      size: 1034
+    - path: src/textSummarizer/pipeline/stage_02_data_validation.py
+      hash: md5
+      md5: 74909e72ad54a0b505ca28f7569f5581
+      size: 524
+    outs:
+    - path: artifacts/data_validation/status.txt
+      hash: md5
+      md5: 86e6a2f694c57a675b3e2da6b95ff9ba
+      size: 23
+  data_transformation:
+    cmd: python -c "from textSummarizer.pipeline.stage_03_data_transformation 
+      import DataTransformationTrainingPipeline; 
+      DataTransformationTrainingPipeline().main()"
+    deps:
+    - path: artifacts/data_ingestion/samsum_dataset
+      hash: md5
+      md5: 454675285f12e8ef5a8e12ea0810c0f9.dir
+      size: 36329994
+      nfiles: 13
+    - path: config/config.yaml
+      hash: md5
+      md5: e5b87b3a5d55631a53aa80013f20356c
+      size: 1111
+    - path: src/textSummarizer/conponents/data_transformation.py
+      hash: md5
+      md5: c0e90ad55fa03f334a05f989e0262204
+      size: 1202
+    - path: src/textSummarizer/pipeline/stage_03_data_transformation.py
+      hash: md5
+      md5: aebc309c4c9caa868cc2e9c1d7a7c874
+      size: 541
+    outs:
+    - path: artifacts/data_transformation/samsum_dataset
+      hash: md5
+      md5: af71e7d7cdcd2aba9f7e3613a045d83c.dir
+      size: 25794307
+      nfiles: 10
+  model_trainer:
+    cmd: python -c "from textSummarizer.pipeline.stage_04_model_trainer import 
+      ModelTrainerTrainingPipeline; ModelTrainerTrainingPipeline().main()"
+    deps:
+    - path: artifacts/data_transformation/samsum_dataset
+      hash: md5
+      md5: af71e7d7cdcd2aba9f7e3613a045d83c.dir
+      size: 25794307
+      nfiles: 10
+    - path: config/config.yaml
+      hash: md5
+      md5: e5b87b3a5d55631a53aa80013f20356c
+      size: 1111
+    - path: src/textSummarizer/conponents/model_trainer.py
+      hash: md5
+      md5: 27778635aba08e3d5e6434dfb535adbf
+      size: 2399
+    - path: src/textSummarizer/pipeline/stage_04_model_trainer.py
+      hash: md5
+      md5: 90977c2dd80bd51a3ca537579ce53a05
+      size: 485
+    params:
+      params.yaml:
+        TrainingArguments:
+          num_train_epochs: 1
+          warmup_steps: 500
+          per_device_train_batch_size: 1
+          weight_decay: 0.01
+          logging_steps: 10
+          eval_strategy: steps
+          eval_steps: 500
+          save_steps: 1000000.0
+          gradient_accumulation_steps: 16
+    outs:
+    - path: artifacts/model_trainer/pegasus-samsum-model
+      hash: md5
+      md5: a000124750e6c5aa34c2111845370349.dir
+      size: 2283654420
+      nfiles: 3
+    - path: artifacts/model_trainer/tokenizer
+      hash: md5
+      md5: 0572d98f62acd54110b7e714e9d23fc9.dir
+      size: 6263168
+      nfiles: 2
+  model_evaluation:
+    cmd: python -c "from textSummarizer.pipeline.stage_05_model_evaluation 
+      import ModelEvaluationTrainingPipeline; 
+      ModelEvaluationTrainingPipeline().main()"
+    deps:
+    - path: artifacts/data_transformation/samsum_dataset
+      hash: md5
+      md5: af71e7d7cdcd2aba9f7e3613a045d83c.dir
+      size: 25794307
+      nfiles: 10
+    - path: artifacts/model_trainer/pegasus-samsum-model
+      hash: md5
+      md5: a000124750e6c5aa34c2111845370349.dir
+      size: 2283654420
+      nfiles: 3
+    - path: artifacts/model_trainer/tokenizer
+      hash: md5
+      md5: 0572d98f62acd54110b7e714e9d23fc9.dir
+      size: 6263168
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: e5b87b3a5d55631a53aa80013f20356c
+      size: 1111
+    - path: src/textSummarizer/conponents/model_evaluation.py
+      hash: md5
+      md5: a2af952a40a09726f5439ea5eab5294f
+      size: 3512
+    - path: src/textSummarizer/pipeline/stage_05_model_evaluation.py
+      hash: md5
+      md5: c1410df1cf95c724046ddaa6a827bd2b
+      size: 515
+    outs:
+    - path: artifacts/model_evaluation/metrics.csv
+      hash: md5
+      md5: 4dd3db43ec2848afd342859c2335d521
+      size: 100
