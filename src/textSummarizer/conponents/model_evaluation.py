@@ -38,12 +38,12 @@ class ModelEvaluation:
             ''' parameter for length penalty ensures that the model does not generate sequences that are too long. '''
             
             # Finally, we decode the generated texts, 
-            # replace the  token, and add the decoded texts with the references to the metric.
+            # replace the <unk> token, and add the decoded texts with the references to the metric.
             decoded_summaries = [tokenizer.decode(s, skip_special_tokens=True, 
                                     clean_up_tokenization_spaces=True) 
                 for s in summaries]      
             
-            decoded_summaries = [d.replace("", " ") for d in decoded_summaries]
+            decoded_summaries = [d.replace("<unk>", " ") for d in decoded_summaries]
             
             
             metric.add_batch(predictions=decoded_summaries, references=target_batch)
